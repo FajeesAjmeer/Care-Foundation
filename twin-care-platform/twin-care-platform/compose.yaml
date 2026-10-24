@@ -1,0 +1,40 @@
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    environment:
+      APP_ENV: production
+      APP_ORIGIN: https://${DOMAIN:?Set DOMAIN in .env}
+      CONTACT_EMAIL: ${CONTACT_EMAIL:?Set CONTACT_EMAIL in .env}
+      DATA_DIR: /data
+      TRUST_PROXY: "1"
+    volumes:
+      - twin_data:/data
+    expose:
+      - "8000"
+    networks:
+      - internal
+    security_opt:
+      - no-new-privileges:true
+  proxy:
+    image: caddy:2
+    restart: unless-stopped
+    environment:
+      DOMAIN: ${DOMAIN:?Set DOMAIN in .env}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - internal
+    depends_on:
+      - app
+volumes:
+  twin_data:
+  caddy_data:
+  caddy_config:
+networks:
+  internal:
