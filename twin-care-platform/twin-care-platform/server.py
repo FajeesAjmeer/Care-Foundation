@@ -146,7 +146,7 @@ def approval_list(c,i): return [r[0] for r in c.execute('SELECT admin_id FROM ap
 def app_data(c,r,private=False):
     d=json.loads(r['data']);ap=approval_list(c,r['id'])
     donations=[{'label':'Direct support confirmed','amt':x['amount']/100,'d':x['created'][:10]} for x in c.execute('SELECT * FROM donations WHERE case_id=? ORDER BY created DESC',(r['id'],))]
-    out={'id':r['id'],'name':d['a_public_name'],'age':d['a_age'],'district':d['a_district'],'disease':d['a_cond'],'urgency':{'Normal':'normal','Soon':'soon','Urgent':'high'}[d['a_urg']],'required':d['a_cost'],'raised':sum(x['amt'] for x in donations),'hospital':d['a_hospital'],'treatment':d['a_treat'],'status':'live' if r['status']=='verified' else r['status'],'av':int(r['id'][:2],16)%6,'donors':donations,'vd':dict.fromkeys(['id','med','hosp','pub'],(r['published'] or '')[:10])}
+    out={'id':r['id'],'name':d['a_public_name'],'age':d['a_age'],'district':d['a_district'],'disease':d['a_cond'],'urgency':{'Normal':'normal','Soon':'soon','Urgent':'high'}[d['a_urg']],'required':d['a_cost'],'raised':sum(x['amt'] for x in donations),'submitted':r['created'][:10],'hospital':d['a_hospital'],'treatment':d['a_treat'],'status':'live' if r['status']=='verified' else r['status'],'av':int(r['id'][:2],16)%6,'donors':donations,'vd':dict.fromkeys(['id','med','hosp','pub'],(r['published'] or '')[:10])}
     if private:
         out.update(name=d['a_name'],status=r['status'],submitted=r['created'][:10],checks=json.loads(r['checks']),approvals=ap,phone=d['a_phone'],email=d['a_email'],nic=d['a_nic'],reason=r['reason'],publicName=d['a_public_name'],documents=[dict(x) for x in c.execute('SELECT id,kind FROM documents WHERE case_id=?',(r['id'],))])
     return out
@@ -248,8 +248,12 @@ def route(c,e,method,path,u,headers):
             require(r['status']=='review' and all(json.loads(r['checks'])),'Complete verification before approval.',409)
             require(u['id']!=r['owner'],'You cannot approve your own application.',403)
             require(u['id'] not in approval_list(c,i),'You already approved. Another admin must approve.',409)
+            require(len(approval_list(c,i))<2,'Two approvals are already recorded.',409)
             c.execute('INSERT INTO approvals VALUES(?,?,?)',(i,u['id'],now()))
-            if len(approval_list(c,i))>=2: c.execute("UPDATE applications SET status='verified',published=? WHERE id=?",(now(),i))
+        elif action=='publish':
+            require(r['status']=='review' and all(json.loads(r['checks'])) and len(approval_list(c,i))>=2,'Two distinct approvals are required before publication.',409)
+            require(u['id']!=r['owner'],'You cannot publish your own application.',403)
+            c.execute("UPDATE applications SET status='verified',published=?,reason='' WHERE id=?",(now(),i))
         elif action=='reject':
             require(r['status'] in ['pending','review'],'Cannot reject a published case',409)
             reason=field(d,'reason',1000);c.execute("UPDATE applications SET status='rejected',reason=? WHERE id=?",(reason,i));c.execute('DELETE FROM approvals WHERE case_id=?',(i,))

@@ -1,6 +1,6 @@
-# Twin Care Foundation — platform v1.1
+# Twin Care Foundation — platform v2
 
-A runnable, self-hosted medical assistance coordination platform based on your original HTML mockup. The original Inter typography, colours, spacing, card styles, responsive breakpoints and dark-mode styles are retained. Public pages show real saved records instead of sample patients, fake balances or invented credentials.
+A self-hosted medical assistance coordination platform based on the v2 prototype. The public pages use the prototype layout, case cards, verification timeline and English, Tamil and Sinhala navigation and case labels. Applications, published cases and confirmed support use the live SQLite backend.
 
 This delivery is **source code and deployment setup**, not a newly launched public website. The earlier ChatGPT-hosted link is still the original demo. No production patient data or admin passwords are included.
 
@@ -21,7 +21,7 @@ See `UPDATE-TA.md` before replacing files in an existing installation.
 - Persistent multi-step applications, applicant/guardian NIC, public alias, age and separate verification/publication/contact consent.
 - Three mandatory private medical files, 5 MB each (PDF/PNG/JPEG).
 - Applicant status tracking and private document downloads.
-- Server-enforced admin roles, checklists, rejection reasons, audit events and two distinct approvals before publication. Admins cannot approve their own applications.
+- Server-enforced admin roles, checklists, rejection reasons, audit events and two distinct approvals before an administrator can publish. Admins cannot approve their own applications.
 - Checklist changes reset approvals. Concurrent duplicate approvals cannot publish a case.
 - Public case search and filters; direct case links; authenticated WhatsApp/call contact links.
 - Fraud reports and private evidence. A report does not automatically remove a case; admins investigate, dismiss or suspend. Restoring a suspended case requires two new approvals.
@@ -53,7 +53,7 @@ Replace the example emails/names. Each command securely prompts for a password o
 2. Submit an application with three non-sensitive test documents.
 3. Open `/admin`, log in as admin one, start review, independently verify details and tick all four checks.
 4. Approve once. The case is still not public.
-5. Log in as admin two and approve. The public case is now visible.
+5. Log in as admin two and approve. Select **Publish case** in the review queue to make it public.
 6. Log in as a supporter to open WhatsApp or the dialler.
 
 SQLite creates `data/twin-care.sqlite3`. Uploaded files are stored as private BLOBs inside that database; they are not web assets. Restarting the server preserves all records. Use synthetic test data until the deployment is configured for real medical records.
@@ -66,7 +66,7 @@ On a Linux server with Docker Engine + Compose installed:
 
 1. Upload/extract this project.
 2. Point the domain's DNS A/AAAA records at the server. Remove an AAAA record if IPv6 is not configured.
-3. Copy `.env.example` to `.env`. Set `DOMAIN` to your real hostname (without `https://`) and `CONTACT_EMAIL` to your monitored foundation mailbox.
+3. Create `.env` in the project directory. Set `DOMAIN` to your real hostname (without `https://`) and `CONTACT_EMAIL` to your monitored foundation mailbox.
 4. Start the containers:
 
 ```sh
@@ -153,6 +153,6 @@ The backend tests exercise privacy, CSRF, roles, duplicate/concurrent approvals,
 - `public/` — original visual system, connected frontend and pages.
 - `server.py` — WSGI API, authorization, validation, SQLite schema and private file access.
 - `manage.py` — administrator creation, recovery, revocation, backups and approved application deletion.
-- `Dockerfile`, `compose.yaml`, `Caddyfile`, `.env.example` — deployment configuration.
+- `Dockerfile`, `compose.yaml`, `Caddyfile` — deployment configuration.
 - `tests/` — backend integration and frontend render smoke tests.
 - `START-HERE-TA.md` — Tamil quick start and handoff notes.

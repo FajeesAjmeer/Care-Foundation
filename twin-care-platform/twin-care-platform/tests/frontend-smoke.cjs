@@ -11,6 +11,17 @@ function test(pathname,assertions){
 test('/',`
  currentUser={id:'member',name:'Member',email:'m@example.org',role:'member'};
  for(const view of ['home','cases','case','apply','stories','report','volunteer','account','login','privacy']){state.view=view;render();assert(document.querySelector('#app').innerHTML.includes('<main'));}
+ const published={id:'abcdef123456789012345678',name:'Example alias',district:'Colombo',age:12,disease:'Heart Surgery',required:20000,raised:2500,status:'live',treatment:'Treatment description',urgency:'high',av:1,submitted:'2026-01-01',vd:{pub:'2026-01-02'},donors:[{amt:2500,d:'2026-01-02'}]};
+ cases.push(published);state.caseId=published.id;
+ for(const lang of ['en','ta','si']) {
+   state.lang=lang;
+   for(const view of ['home','cases','case','stories']){
+     state.view=view;render();
+     assert(!document.querySelector('#app').innerHTML.includes('Sample Bank'));
+   }
+ }
+ state.view='case';render();assert(document.querySelector('#app').innerHTML.includes('Example alias'));
+ state.lang='en';
  for(const step of [0,1,2,3]){state.view='apply';state.step=step;render();}
  currentUser={id:'admin1',name:'Admin',role:'admin'};state.view='home';render();
  assert(!header().includes('data-view="admin"'));assert(!header().includes('Administration'));
@@ -24,6 +35,7 @@ test('/admin',`
  currentUser={id:'admin1',name:'Admin',email:'a@example.org',role:'admin'};
  const a={id:'abcdef123456789012345678',name:'Full Name',publicName:'Public Name',age:12,district:'Colombo',disease:'Heart Surgery',urgency:'high',required:100000,raised:0,hospital:'Hospital',treatment:'Treatment',status:'review',av:0,checks:[true,true,true,true],approvals:[],documents:[{id:'doc123',kind:'a_report'}],phone:'+94771234567',email:'a@example.org',nic:'123456789V',vd:{pub:'2026-10-15'},donors:[]};adminApps.push(a);
  for(const section of ['overview','pending','review','verified','reports','volunteers','stories','settings']){state.adm=section;render();html=document.querySelector('#app').innerHTML;assert(html.includes('Admin sections'));assert(!html.includes('Apply for Help'));assert(!html.includes('site-f'));}
+ a.approvals=['admin1','admin2'];state.adm='review';render();assert(document.querySelector('#app').innerHTML.includes('Publish case'));
  a.status='verified';state.adm='verified';render();assert(document.querySelector('#app').innerHTML.includes('Record verified direct support'));
  currentUser=null;render();assert(!document.querySelector('#app').innerHTML.includes('Admin sections'));
  console.log('Admin portal: dedicated login, member denied, 8 dashboard sections and logout gate pass.');

@@ -47,6 +47,7 @@ class PlatformTests(unittest.TestCase):
  def publish(self):
   i=self.submit();self.review(i)
   for a in [self.admin1,self.admin2]:self.assertEqual(a.request('/api/admin/case',{'id':i,'action':'approve'})[0],200)
+  self.assertEqual(self.admin2.request('/api/admin/case',{'id':i,'action':'publish'})[0],200)
   return i
  def test_persistence_private_documents(self):
   i=self.submit();out=self.member.request('/api/applications')[1][0];self.assertEqual(out['id'],i)
@@ -55,9 +56,12 @@ class PlatformTests(unittest.TestCase):
   for c in [self.member,self.admin1]:self.assertTrue(c.request('/api/documents/'+doc)[1].startswith(b'%PDF'))
   self.assertEqual(anon.request('/api/cases')[1],[]);self.assertEqual(other.request('/api/applications')[1],[])
  def test_two_admins_and_public_privacy(self):
-  i=self.submit();self.review(i);self.assertEqual(self.admin1.request('/api/admin/case',{'id':i,'action':'approve'})[0],200)
+  i=self.submit();self.review(i);self.assertEqual(self.admin1.request('/api/admin/case',{'id':i,'action':'publish'})[0],409);self.assertEqual(self.admin1.request('/api/admin/case',{'id':i,'action':'approve'})[0],200)
   self.assertEqual(self.admin1.request('/api/admin/case',{'id':i,'action':'approve'})[0],409);self.assertEqual(Client().request('/api/cases')[1],[])
   self.assertEqual(self.admin2.request('/api/admin/case',{'id':i,'action':'approve'})[0],200)
+  self.assertEqual(Client().request('/api/cases')[1],[])
+  self.assertEqual(self.admin2.request('/api/admin/case',{'id':i,'action':'publish'})[0],200)
+  self.assertEqual(self.admin1.request('/api/admin/case',{'id':i,'action':'publish'})[0],409)
   case=Client().request('/api/cases')[1][0];self.assertEqual(case['name'],'Patient')
   for k in ['nic','phone','email','documents']:self.assertNotIn(k,case)
  def test_concurrent_duplicate_approval(self):

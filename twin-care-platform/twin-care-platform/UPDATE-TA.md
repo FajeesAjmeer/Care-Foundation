@@ -23,7 +23,7 @@ py -3.12 server.py
 - Patient account-க்கு admin sign-in அனுமதி இல்லை.
 - Public menu-ல் Admin button இல்லை.
 - Admin பகுதியில் application review, documents, approvals, reports, volunteers, stories போன்ற management வசதிகள் இருக்கும்.
-- Database, existing accounts மற்றும் two-admin approval rule மாறவில்லை.
+- ஏற்கனவே உள்ள database மற்றும் accounts தொடர்ந்து வேலை செய்யும். இரண்டு admin approvals கிடைத்த பின் **Publish case** அழுத்த வேண்டும்.
 
 இந்த update தனித்தனி interfaces உருவாக்குகிறது; தனி domain அல்லது இரண்டு servers தேவையில்லை. ஒரே browser-ல் இரண்டு accounts-ஐ ஒரே நேரத்தில் test செய்ய, இரண்டாவது account-ஐ Incognito / Private window-ல் திறக்கவும்.
 

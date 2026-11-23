@@ -23,7 +23,7 @@ python manage.py create-admin second-admin@example.org --name "Second Admin"
 
 ஒவ்வொரு command-மும் password கேட்கும். குறைந்தது 12 characters பயன்படுத்துங்கள். Password terminal-ல் தெரியாமல் இருப்பது இயல்பு.
 
-ஒரு admin மட்டும் approve செய்தால் case public ஆகாது. இரண்டாவது தனித்தனி admin approve செய்த பிறகுதான் வெளியிடப்படும். Mockup-ல் இருந்த Admin A/B switch இங்கே கிடையாது.
+ஒரு admin மட்டும் approve செய்தால் case public ஆகாது. இரண்டாவது admin approve செய்த பின், review screen-ல் **Publish case** அழுத்தினால் பொதுவில் வெளியாகும். Mockup-ல் இருந்த Admin A/B switch இங்கே கிடையாது.
 
 ## என்ன வேலை செய்கிறது?
 
@@ -41,7 +41,7 @@ Twin Care பணம் வசூலிக்காது. Payment gateway இல
 
 Hosting இன்னும் தேர்வு செய்யாததால் Docker-based setup கொடுத்துள்ளேன். Docker + persistent storage ஆதரிக்கும் server மற்றும் domain தேவை. Static HTML upload மட்டும் போதாது.
 
-`README.md`-ல் deployment commands உள்ளன. `.env.example`-ஐ `.env` என்று copy செய்து domain மற்றும் foundation contact email நிரப்ப வேண்டும். இரண்டு admin accounts உருவாக்க வேண்டும். Hosting வாங்கும் முன் இந்த project Python/Docker backend பயன்படுத்துகிறது என்பதை hosting provider-க்கு தெரிவிக்கவும்.
+`README.md`-ல் deployment commands உள்ளன. `.env` file உருவாக்கி `DOMAIN` மற்றும் `CONTACT_EMAIL` values நிரப்ப வேண்டும். இரண்டு admin accounts உருவாக்க வேண்டும். Hosting வாங்கும் முன் இந்த project Python/Docker backend பயன்படுத்துகிறது என்பதை hosting provider-க்கு தெரிவிக்கவும்.
 
 ## இன்னும் செய்ய வேண்டியவை
 
