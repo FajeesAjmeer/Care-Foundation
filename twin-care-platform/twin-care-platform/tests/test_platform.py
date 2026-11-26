@@ -101,6 +101,16 @@ class PlatformTests(unittest.TestCase):
   self.assertEqual(self.admin1.request('/api/admin/story',story)[0],200);sid=Client().request('/api/stories')[1][0]['id'];self.admin1.request('/api/admin/story-delete',{'id':sid});self.assertEqual(Client().request('/api/stories')[1],[])
   self.assertEqual(self.member.request('/api/password',{'current':'a-long-test-password','password':'new-long-password'})[0],200);self.assertEqual(self.member.request('/api/me')[1]['user'],None)
   self.assertEqual(Client().request('/')[0],200);self.assertEqual(Client().request('/server.py')[0],404)
+ def test_hero_video_range_requests(self):
+  def get(path,rng=None):
+   out={};e={'PATH_INFO':path,'REQUEST_METHOD':'GET','CONTENT_LENGTH':'0','wsgi.input':io.BytesIO(b''),'REMOTE_ADDR':'test:media'}
+   if rng:e['HTTP_RANGE']=rng
+   def start(s,h):out.update(status=int(s.split()[0]),headers=dict(h))
+   out['body']=b''.join(server.application(e,start));return out
+  full=get('/hero.mp4');size=len(full['body']);self.assertGreater(size,1000);self.assertEqual(full['status'],200);self.assertEqual(full['headers']['Content-Type'],'video/mp4');self.assertEqual(full['headers']['Accept-Ranges'],'bytes');self.assertIn('max-age',full['headers']['Cache-Control'])
+  part=get('/hero.mp4','bytes=0-99');self.assertEqual(part['status'],206);self.assertEqual(part['body'],full['body'][:100]);self.assertEqual(part['headers']['Content-Range'],f'bytes 0-99/{size}')
+  tail=get('/hero.mp4','bytes=-50');self.assertEqual(tail['status'],206);self.assertEqual(tail['body'],full['body'][-50:])
+  self.assertEqual(get('/hero.mp4',f'bytes={size+10}-')['status'],416);self.assertEqual(get('/hero.jpg')['headers']['Content-Type'],'image/jpeg');self.assertEqual(get('/hero.png')['status'],404)
  def test_no_self_approval(self):
   status,out=self.admin1.request('/api/applications',FORM,FILES);self.assertEqual(status,200);i=out['id'];self.review(i);self.assertEqual(self.admin1.request('/api/admin/case',{'id':i,'action':'approve'})[0],403)
  def test_separate_admin_login(self):

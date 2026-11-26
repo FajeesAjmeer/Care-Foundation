@@ -284,13 +284,25 @@ def route(c,e,method,path,u,headers):
     raise APIError(404,'Not found')
 
 initialize()
+MEDIA={'/hero.mp4':'video/mp4','/hero.jpg':'image/jpeg'}
 def application(e,start_response):
     headers=[('X-Content-Type-Options','nosniff'),('X-Frame-Options','DENY'),('Referrer-Policy','same-origin'),('Cache-Control','no-store'),('Permissions-Policy','camera=(), microphone=(), geolocation=()'),('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'")]
     if PRODUCTION: headers.append(('Strict-Transport-Security','max-age=31536000'))
     status=200;mime='application/json; charset=utf-8'
     try:
         path=e.get('PATH_INFO','/');method=e.get('REQUEST_METHOD','GET')
-        if path in ['/','/admin','/admin/','/app.js','/style.css'] and method=='GET':
+        if path in MEDIA and method in ('GET','HEAD'):
+            data=(ROOT/'public'/path[1:]).read_bytes();mime=MEDIA[path];size=len(data);body=data
+            headers[:]=[h for h in headers if h[0]!='Cache-Control']+[('Cache-Control','public, max-age=86400'),('Accept-Ranges','bytes')]
+            m=re.fullmatch(r'bytes=(\d*)-(\d*)',e.get('HTTP_RANGE','').strip())
+            if m and (m.group(1) or m.group(2)):
+                if m.group(1): a=int(m.group(1));b=int(m.group(2)) if m.group(2) else size-1
+                else: a=max(size-int(m.group(2)),0);b=size-1
+                b=min(b,size-1)
+                if a>b or a>=size: headers.append(('Content-Range',f'bytes */{size}'))
+                require(a<=b and a<size,'Range not satisfiable',416)
+                status=206;body=data[a:b+1];headers.append(('Content-Range',f'bytes {a}-{b}/{size}'))
+        elif path in ['/','/admin','/admin/','/app.js','/style.css'] and method=='GET':
             name={'/':'index.html','/admin':'index.html','/admin/':'index.html','/app.js':'app.js','/style.css':'style.css'}[path]
             body=(ROOT/'public'/name).read_bytes();mime={'/':'text/html; charset=utf-8','/admin':'text/html; charset=utf-8','/admin/':'text/html; charset=utf-8','/app.js':'application/javascript; charset=utf-8','/style.css':'text/css; charset=utf-8'}[path]
         else:

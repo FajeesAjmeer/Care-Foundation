@@ -409,6 +409,13 @@ html[lang=ta] .hero h1,html[lang=si] .hero h1{font-size:clamp(1.7rem,4vw,2.6rem)
 .hero .btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:30px}
 .hero .btn-light{background:#fff;color:#0F3B78}
 .hero .btn-tl{background:#2CC2AB;color:#04241F}
+/* hero background video */
+.hero{position:relative;overflow:hidden;isolation:isolate}
+.hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2;pointer-events:none}
+.hero-shade{position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(10,42,90,.72) 0%,rgba(15,59,120,.62) 55%,rgba(10,42,90,.82) 100%)}
+.hero-copy{position:relative}
+.hero h1,.hero p{text-shadow:0 2px 14px rgba(5,20,45,.45)}
+@media (prefers-reduced-motion:reduce){.hero-video{display:none}}
 
 .trust{position:relative;margin:-52px auto 0;max-width:800px;background:var(--surface);border-radius:16px;box-shadow:0 12px 32px rgba(15,59,120,.16);display:grid;grid-template-columns:repeat(3,1fr);padding:8px}
 .trust div{display:flex;align-items:center;gap:12px;padding:14px 16px;font-weight:600;font-size:.95rem}

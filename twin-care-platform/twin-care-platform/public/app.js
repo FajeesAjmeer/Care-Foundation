@@ -348,7 +348,7 @@ function footer(){
 function homeView(){
   const steps = [['doc','s1h','s1p'],['shield','s2h','s2p'],['people','s3h','s3p']];
   return `
-  <section class="hero"><div class="wrap">
+  <section class="hero"><video class="hero-video" autoplay muted loop playsinline preload="auto" poster="/hero.jpg" aria-hidden="true" tabindex="-1" disablepictureinpicture><source src="/hero.mp4" type="video/mp4"></video><div class="hero-shade" aria-hidden="true"></div><div class="wrap hero-copy">
     <h1>${t('heroH')}</h1><p>${t('heroP')}</p>
     <div class="btns"><button class="btn btn-light" data-act="go" data-view="apply">${t('apply')}</button><button class="btn btn-tl" data-act="go" data-view="cases">${t('ctaCases')}</button></div>
   </div></section>
